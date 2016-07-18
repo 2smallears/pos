@@ -1,3 +1,19 @@
 'use strict';
 
-//TODO: 请在该文件中实现练习要求并删除此注释
+let cartItems = getCartItems(inputs);
+let receiptItems = getReceiptItems(cartItems);
+
+function getCartItems(inputs) {
+  const allItems = loadAllItems();
+  const promotions = loadPromotions();
+
+  let cartItems = [];
+  
+  for(let i = 0; i < inputs.length; i++){
+    if (isExist(inputs, allItems)){
+      if(isDiscount(inputs, promotions)){
+      }
+    }
+  }
+}
+
