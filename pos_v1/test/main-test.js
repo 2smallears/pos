@@ -19,7 +19,7 @@ describe('pos', () => {
 
   it('get cartItems', () => {
     let allItems = loadAllItems();
-    let cartItems = getCartItems(inputs, allItems);
+    let cartItems = buildCartItems(inputs, allItems);
     const expectCartItems = [
       {
         item:{
@@ -53,14 +53,41 @@ describe('pos', () => {
   });
 
   it('get receiptItems', () => {
-    let allItems = loadAllItems();
     let promotions = loadPromotions();
-    let cartItems = getCartItems(inputs, allItems);
-    let receiptItems = getReceiptItems(cartItems, promotions);
+    let cartItems = [
+      {
+        item:{
+          barcode: 'ITEM000001',
+          name: '雪碧',
+          unit: '瓶',
+          price: 3.00
+        },
+        count:5
+      },
+      {
+        item:{
+          barcode: 'ITEM000003',
+          name: '荔枝',
+          unit: '斤',
+          price: 15.00
+        },
+        count:2
+      },
+      {
+        item:{
+          barcode: 'ITEM000005',
+          name: '方便面',
+          unit: '袋',
+          price: 4.50
+        },
+        count:3
+      }
+    ]
+    let receiptItems = buildReceiptItems(cartItems, promotions);
 
     const expectrReceiptItems = [
       {
-        receiptItem:{
+        cartItem:{
           item:{
             barcode: 'ITEM000001',
             name: '雪碧',
@@ -69,11 +96,11 @@ describe('pos', () => {
           },
           count:5
         },
-        subTotal:12.00,
-        save:3.00
+        subtotal:12.00,
+        saved:3.00
       },
       {
-        receiptItem:{
+        cartItem:{
           item:{
             barcode: 'ITEM000003',
             name: '荔枝',
@@ -82,11 +109,11 @@ describe('pos', () => {
           },
           count:2
         },
-        subTotal:30.00,
-        save:0
+        subtotal:30.00,
+        saved:0
       },
       {
-        receiptItem:{
+        cartItem:{
           item:{
             barcode: 'ITEM000005',
             name: '方便面',
@@ -95,8 +122,8 @@ describe('pos', () => {
           },
           count:3
         },
-        subTotal: 9.00,
-        save: 4.50
+        saved: 4.50,
+        subtotal: 9.00
       }
     ];
 
@@ -104,16 +131,53 @@ describe('pos', () => {
   });
 
   it('get receipt', () => {
-    let allItems = loadAllItems();
-    let promotions = loadPromotions();
-    let cartItems = getCartItems(inputs, allItems);
-    let receiptItems = getReceiptItems(cartItems, promotions);
-    let receipt = getReceipt(receiptItems);
+      let receiptItems = [
+      {
+        cartItem:{
+          item:{
+            barcode: 'ITEM000001',
+            name: '雪碧',
+            unit: '瓶',
+            price: 3.00
+          },
+          count:5
+        },
+        subtotal:12.00,
+        saved:3.00
+      },
+      {
+        cartItem:{
+          item:{
+            barcode: 'ITEM000003',
+            name: '荔枝',
+            unit: '斤',
+            price: 15.00
+          },
+          count:2
+        },
+        subtotal:30.00,
+        saved:0
+      },
+      {
+        cartItem:{
+          item:{
+            barcode: 'ITEM000005',
+            name: '方便面',
+            unit: '袋',
+            price: 4.50
+          },
+          count:3
+        },
+        saved: 4.50,
+        subtotal: 9.00
+      }
+    ];
+    let receipt = buildReceipt(receiptItems);
 
     const expectReceipt = {
       receiptItems:[
         {
-          receiptItem:{
+          cartItem:{
             item:{
               barcode: 'ITEM000001',
               name: '雪碧',
@@ -122,11 +186,11 @@ describe('pos', () => {
             },
             count:5
           },
-          subTotal:12.00,
-          save:3.00
+          subtotal:12.00,
+          saved:3.00
         },
         {
-          receiptItem:{
+          cartItem:{
             item:{
               barcode: 'ITEM000003',
               name: '荔枝',
@@ -135,11 +199,11 @@ describe('pos', () => {
             },
             count:2
           },
-          subTotal:30.00,
-          save:0
+          subtotal:30.00,
+          saved:0
         },
         {
-          receiptItem:{
+          cartItem:{
             item:{
               barcode: 'ITEM000005',
               name: '方便面',
@@ -148,23 +212,63 @@ describe('pos', () => {
             },
             count:3
           },
-          subTotal:9.00,
-          save: 4.50
+          subtotal:9.00,
+          saved: 4.50
         }
       ],
       total: 51.00,
-      saveTotal: 7.50
+      savedTotal: 7.50
     };
     expect(receipt).toEqual(expectReceipt);
   });
 
   it('get receiptText', () => {
-    let allItems = loadAllItems();
-    let promotions = loadPromotions();
-    let cartItems = getCartItems(inputs, allItems);
-    let receiptItems = getReceiptItems(cartItems, promotions);
-    let receipt = getReceipt(receiptItems);
-    let receiptText = getReceiptText(receipt);
+    let receipt = {
+      receiptItems:[
+        {
+          cartItem:{
+            item:{
+              barcode: 'ITEM000001',
+              name: '雪碧',
+              unit: '瓶',
+              price: 3.00
+            },
+            count:5
+          },
+          subtotal:12.00,
+          saved:3.00
+        },
+        {
+          cartItem:{
+            item:{
+              barcode: 'ITEM000003',
+              name: '荔枝',
+              unit: '斤',
+              price: 15.00
+            },
+            count:2
+          },
+          subtotal:30.00,
+          saved:0
+        },
+        {
+          cartItem:{
+            item:{
+              barcode: 'ITEM000005',
+              name: '方便面',
+              unit: '袋',
+              price: 4.50
+            },
+            count:3
+          },
+          subtotal:9.00,
+          saved: 4.50
+        }
+      ],
+      total: 51.00,
+      savedTotal: 7.50
+    };
+    let receiptText = buildReceiptText(receipt);
 
     const expectText = `***<没钱赚商店>收据***
 名称：雪碧，数量：5瓶，单价：3.00(元)，小计：12.00(元)
