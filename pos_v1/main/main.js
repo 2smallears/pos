@@ -1,14 +1,13 @@
-'use static';
+'use strict';
 
 function printReceipt(tags) {
   const allItems = loadAllItems();
   const cartItems = buildCartItems(tags, allItems);
 
   const allPromotions = loadPromotions();
-  const receiptitems = buildReceiptItems(cartItems, allPromotions);
+  const receiptItems = buildReceiptItems(cartItems, allPromotions);
 
-  const receipt = buildReceipt(receiptitems);
-
+  const receipt = buildReceipt(receiptItems);
   const receiptText = buildReceiptText(receipt);
 
   console.log(receiptText);
@@ -36,23 +35,24 @@ function buildReceiptItems(cartItems, allPromotions) {
   return cartItems.map(cartItem => {
     const promotionType = findPromotionType(cartItem.item.barcode, allPromotions);
     const {saved, subtotal} = discount(cartItem.count, cartItem.item.price, promotionType);
+
     return {cartItem, saved, subtotal};
   });
 }
+function findPromotionType(barcode, allPromotions) {
+  const promotion = allPromotions.find(promotion => promotion.barcodes.some(b => b === barcode));
+  return promotion ? promotion.type : undefined;
+}
 
 function discount(count, price, promotionType) {
-  let subtotal = count * price;
   let saved = 0;
+  let subtotal = count * price;
   if (promotionType === 'BUY_TWO_GET_ONE_FREE'){
     saved = parseInt(count / 3) * price;
   }
   subtotal -= saved;
-  return {saved, subtotal};
-}
 
-function findPromotionType(barcode, promotions) {
-  const promotion = promotions.find(promotion => promotion.barcodes.some(b => b === barcode));
-  return promotion ? promotion.type : undefined;
+  return {saved, subtotal};
 }
 
 function buildReceipt(receiptItems) {
@@ -60,18 +60,18 @@ function buildReceipt(receiptItems) {
   let savedTotal = 0;
   for (const receiptItem of receiptItems){
     total += receiptItem.subtotal;
-    savedTotal +=receiptItem.saved;
+    savedTotal += receiptItem.saved;
   }
   return {receiptItems, total, savedTotal};
 }
 
 function buildReceiptText(receipt) {
-  let receiptItemsText = receipt.receiptItems.map(receiptItem => {
+  const receiptItemsText = receipt.receiptItems.map(receiptItem => {
     const cartItem = receiptItem.cartItem;
     return `名称：${cartItem.item.name}，\
 数量：${cartItem.count}${cartItem.item.unit}，\
 单价：${formatMoney(cartItem.item.price)}(元)，\
-小计：${formatMoney(receiptItem.subtotal)}(元)`;
+小计：${formatMoney(receiptItem.subtotal)}(元)`
   }).join('\n');
 
   return `***<没钱赚商店>收据***
@@ -79,9 +79,20 @@ ${receiptItemsText}
 ----------------------
 总计：${formatMoney(receipt.total)}(元)
 节省：${formatMoney(receipt.savedTotal)}(元)
-**********************`
+**********************`;
 }
 
 function formatMoney(money) {
   return money.toFixed(2);
 }
+
+
+
+
+
+
+
+
+
+
+
